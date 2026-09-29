@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<title>施工案例｜漢膜車體美研（網站提案示範）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="cases.html">
+<header id="site-head"></header>
+
+<main>
+  <div class="page-head" style="padding-bottom:40px">
+    <div class="wrap"><span class="tape-mark" aria-hidden="true"></span><p style="margin:0;color:#fff;font-family:var(--serif);font-weight:900;font-size:22px">施工案例</p></div>
+  </div>
+  <section class="sec" style="padding-top:48px">
+    <div class="narrow">
+      <article class="article" id="post"></article>
+      <p style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+        <a class="btn btn-ink" href="visit.html">我的車也想這樣做</a>
+        <a class="btn btn-ghost" href="cases.html">回到案例列表</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer id="site-foot"></footer>
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/guard.js"></script>
+<script>
+(function () {
+  var id = new URLSearchParams(location.search).get("id");
+  var c = HM.Store.load().cases.filter(function (x) { return x.id === id; })[0];
+  var el = document.getElementById("post");
+  if (!c) { el.innerHTML = '<h1>找不到這個案例</h1><p class="muted">這個案例可能已經被店家移除。回到列表看看其他案例。</p>'; return; }
+  document.title = c.title + "｜漢膜車體美研（網站提案示範）";
+  el.innerHTML = '<p class="meta"><time datetime="' + c.date + '">' + c.date.replace(/-/g, ".") + "</time></p><h1>" + HM.esc(c.title) + "</h1>" +
+    '<dl class="spec"><dt>車款</dt><dd>' + HM.esc(c.car || "—") + "</dd>" + (c.color ? "<dt>車色</dt><dd>" + HM.esc(c.color) + "</dd>" : "") +
+    '<dt>施工項目</dt><dd><div class="chips">' + c.items.map(function (i) { return "<span>" + HM.esc(i) + "</span>"; }).join("") + "</div></dd></dl>" +
+    '<div class="body">' + HM.paras(c.body) + "</div>";
+})();
+</script>
+</body>
+</html>

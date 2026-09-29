@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<title>方案價目｜漢膜車體美研（網站提案示範）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="prices.html">
+<header id="site-head"></header>
+
+<main>
+  <div class="page-head">
+    <div class="wrap">
+      <span class="tape-mark" aria-hidden="true"></span>
+      <h1>方案價目</h1>
+      <p>價格依車型大小計算，列的是起價。實際價格要看過車況才能確定，到店後會先報價，您同意才施工。</p>
+    </div>
+  </div>
+
+  <section class="sec" style="padding-top:64px;padding-bottom:0">
+    <div class="wrap">
+      <h2 class="h2">一台車，五種鍍膜</h2>
+      <p class="lead">點車上的位置，看那個部位用什麼鍍膜。</p>
+      <div class="parts">
+        <div class="car">
+          <svg viewBox="0 0 640 250" role="img" aria-label="汽車側面圖，標示車殼、玻璃、塑料、輪框、內裝五個鍍膜部位">
+            <path d="M34 186V150q2-22 32-28l104-12q36-44 82-50l148-2q42 2 72 40l52 20q66 10 76 34v34z" fill="#17222D"/>
+            <path d="M190 110q24-34 62-40h66v40z" fill="#9FB3C6"/>
+            <path d="M330 70h66q30 4 54 40H330z" fill="#9FB3C6"/>
+            <path d="M104 118l420-4" stroke="#2F4458" stroke-width="3"/>
+            <path d="M560 158h44v26h-44z" fill="#56626E"/>
+            <path d="M24 162h28v24H24z" fill="#56626E"/>
+            <circle cx="150" cy="188" r="38" fill="#0B131B"/><circle cx="150" cy="188" r="21" fill="#C9D2DA"/>
+            <circle cx="494" cy="188" r="38" fill="#0B131B"/><circle cx="494" cy="188" r="21" fill="#C9D2DA"/>
+            <path d="M246 96h40v14h-40z" fill="#6B7C8C"/>
+            <g id="hots"></g>
+          </svg>
+        </div>
+        <ul class="part-list" id="part-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" id="price-blocks" style="padding-bottom:96px"></div>
+</main>
+
+<footer id="site-foot"></footer>
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/guard.js"></script>
+<script>
+(function () {
+  var data = HM.Store.load();
+  var SPOTS = [
+    { part: "車殼", x: 300, y: 150, lx: 300, ly: 238 },
+    { part: "玻璃", x: 392, y: 90, lx: 392, ly: 40 },
+    { part: "內裝", x: 266, y: 103, lx: 214, ly: 40 },
+    { part: "塑料", x: 582, y: 171, lx: 600, ly: 132 },
+    { part: "輪框", x: 494, y: 188, lx: 560, ly: 238 }
+  ];
+  function firstRow(part) {
+    return data.prices.filter(function (p) { return p.cat === "coat" && p.part === part; })[0];
+  }
+
+  document.getElementById("hots").innerHTML = SPOTS.map(function (s) {
+    var r = firstRow(s.part); if (!r) return "";
+    return '<a class="hot" href="#row-' + r.id + '" aria-label="' + s.part + '：' + HM.esc(r.name) + '">' +
+      '<line x1="' + s.x + '" y1="' + s.y + '" x2="' + s.lx + '" y2="' + s.ly + '" stroke="#17222D" stroke-width="1.5"/>' +
+      '<circle class="dot" cx="' + s.x + '" cy="' + s.y + '" r="11" fill="#E6D49C" stroke="#fff" stroke-width="3"/>' +
+      '<rect x="' + (s.lx - 30) + '" y="' + (s.ly - 16) + '" width="60" height="30" rx="4" fill="#fff" stroke="#17222D" stroke-width="1.5"/>' +
+      '<text x="' + s.lx + '" y="' + (s.ly + 5) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#17222D" font-family="Noto Sans TC, sans-serif">' + s.part + "</text></a>";
+  }).join("");
+
+  document.getElementById("part-list").innerHTML = SPOTS.map(function (s) {
+    var r = firstRow(s.part); if (!r) return "";
+    return '<li><a href="#row-' + r.id + '"><span class="k">' + s.part + '</span><span class="v">' + HM.esc(r.name) + '</span><span class="p">' + (r.prices[0] != null ? HM.money(r.prices[0]) + " 起" : "請洽詢") + "</span></a></li>";
+  }).join("");
+
+  document.getElementById("price-blocks").innerHTML = HM.CATS.map(function (c) {
+    var rows = data.prices.filter(function (p) { return p.cat === c.id; });
+    return '<section class="price-block" id="' + c.id + '" aria-labelledby="h-' + c.id + '">' +
+      '<h2 class="h2" id="h-' + c.id + '">' + c.name + '</h2><p class="lead">' + c.intro + "</p>" +
+      '<div class="table-wrap"><table class="price"><thead><tr><th>項目</th>' + c.cols.map(function (col) { return "<th>" + col + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      (rows.length ? rows.map(function (r) {
+        return '<tr id="row-' + r.id + '"><td>' + (r.part ? '<span class="part">' + HM.esc(r.part) + "</span>" : "") + '<span class="name">' + HM.esc(r.name) + "</span>" + (r.desc ? '<span class="d">' + HM.esc(r.desc) + "</span>" : "") + "</td>" +
+          c.cols.map(function (_, i) { return '<td class="n">' + (r.prices[i] != null && r.prices[i] !== "" ? HM.money(r.prices[i]) + "<small>起</small>" : "請洽詢") + "</td>"; }).join("") + "</tr>";
+      }).join("") : '<tr><td colspan="' + (c.cols.length + 1) + '" class="muted">這個分類目前沒有項目。</td></tr>') +
+      "</tbody></table></div></section>";
+  }).join("") + '<p class="demo-price">目前的價格是示範內容。店家可以在後台自己修改，網站會立刻更新。</p>';
+
+  if (location.hash) { var t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<title>漢膜車體美研商家後台（示範）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+.login{min-height:calc(100vh - 36px);display:grid;place-items:center;padding:24px}
+.login .card{width:min(420px,100%)}
+.login h1{font-family:var(--serif);font-weight:900;font-size:26px;margin-bottom:4px}
+.demo-cred{background:#FBF5E2;border-left:4px solid var(--tape-deep);padding:10px 14px;font-size:14px;margin:14px 0 18px}
+.app{display:none;min-height:100vh;grid-template-columns:240px 1fr}
+.app.on{display:grid}
+.side{background:var(--lacquer);color:#fff;padding:22px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px}
+.side .brand{color:#fff;margin:0 10px 22px}
+.side .brand span{color:#8C98A4}
+.side a.item{color:#B9C3CD;text-decoration:none;padding:10px 14px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.side a.item:hover{background:rgba(255,255,255,.07);color:#fff}
+.side a.item.on{background:var(--tape);color:var(--ink);font-weight:700}
+.badge{background:var(--danger);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:0 8px}
+.side .spacer{flex:1}
+.main{padding:28px 36px 90px;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.topbar h1{font-family:var(--serif);font-weight:900;font-size:30px}
+.pane{display:none}.pane.on{display:block}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat{background:#fff;border-radius:8px;padding:20px 22px;border:1px solid var(--line)}
+.stat .k{font-size:14px;color:var(--steel)}
+.stat .v{font-family:var(--num);font-weight:700;font-size:34px;margin-top:2px}
+.stat .v.sm{font-family:var(--sans);font-size:18px;line-height:1.5}
+.adm-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line)}
+.adm-table th,.adm-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;font-size:15px}
+.adm-table th{background:var(--paper);font-size:13px;color:var(--steel)}
+.adm-table input,.adm-table select{width:100%;border:1.5px solid var(--line);border-radius:6px;padding:7px 10px;background:#fff;-webkit-user-select:text;user-select:text}
+.adm-table input:focus,.adm-table select:focus{outline:none;border-color:var(--ink)}
+.adm-table input.num{max-width:120px;min-width:96px}
+.adm-table input.part{max-width:80px;min-width:64px}
+.scroll{overflow-x:auto;margin-top:12px}
+.pane h2{font-family:var(--serif);font-weight:900;font-size:21px}
+.cat-block{margin-bottom:36px}
+.row-acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.link-btn{background:none;border:0;color:var(--danger);font-weight:700;cursor:pointer;padding:6px 4px;font-size:14px;white-space:nowrap}
+.link-btn.edit{color:var(--ink);text-decoration:underline}
+.saved{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:6px;font-weight:700;opacity:0;transition:.25s;z-index:100;pointer-events:none}
+.saved.show{opacity:1;transform:translateX(-50%)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.check{display:flex;align-items:center;gap:8px;font-weight:700}
+.check input{width:20px;height:20px;accent-color:var(--ink)}
+.pill{font-size:13px;font-weight:700;border-radius:4px;padding:2px 8px;white-space:nowrap}
+.help{font-size:14px;color:var(--steel);margin-top:4px}
+.bk-detail{font-size:13px;color:var(--steel)}
+@media (max-width:900px){
+  .app.on{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:12px}
+  .side .brand{width:100%;margin:0 6px 8px}
+  .side .spacer{display:none}
+  .main{padding:22px 16px 90px}
+  .stats,.two{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-bar" role="note">這是 <strong>示範版後台</strong>：修改只會存在這台裝置的瀏覽器。正式版會連到雲端資料庫，改完所有客人立刻看到。</div>
+
+<div class="login" id="login">
+  <div class="card">
+    <h1>漢膜車體美研 商家後台</h1>
+    <p class="muted">登入後可以修改價格、上傳施工案例、設定公告與店休、查看預約。</p>
+    <p class="demo-cred">示範帳號：<b>demo</b>　密碼：<b>1234</b></p>
+    <form class="form" id="login-form">
+      <div class="field"><label for="u">帳號</label><input id="u" autocomplete="username" required></div>
+      <div class="field"><label for="pw">密碼</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <p class="err" id="login-err"></p>
+      <button class="btn btn-ink" type="submit">登入後台</button>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="side">
+    <a class="brand" href="#overview"><b>漢膜</b><span>商家後台</span></a>
+    <a class="item" href="#overview" data-p="overview">總覽</a>
+    <a class="item" href="#prices" data-p="prices">價目管理</a>
+    <a class="item" href="#cases" data-p="cases">施工案例</a>
+    <a class="item" href="#hours" data-p="hours">公告與營業時間</a>
+    <a class="item" href="#bookings" data-p="bookings">預約單 <span class="badge" id="badge"></span></a>
+    <span class="spacer"></span>
+    <a class="item" href="../index.html" target="_blank" rel="noopener">查看網站</a>
+    <a class="item" href="#" id="logout">登出</a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="title">總覽</h1>
+      <button class="btn btn-ghost btn-small" type="button" id="reset">還原示範資料</button>
+    </div>
+
+    <section class="pane" id="p-overview">
+      <div class="stats">
+        <div class="stat"><div class="k">今天營業狀態</div><div class="v sm" id="ov-status"></div></div>
+        <div class="stat"><div class="k">待聯絡的預約</div><div class="v" id="ov-book"></div></div>
+        <div class="stat"><div class="k">施工案例</div><div class="v" id="ov-cases"></div></div>
+      </div>
+      <h2 style="margin-top:36px">常用功能</h2>
+      <div class="row-acts">
+        <a class="btn btn-ink" href="#cases">新增施工案例</a>
+        <a class="btn btn-tape" href="#prices">修改價格</a>
+        <a class="btn btn-ghost" href="#hours">改網站公告</a>
+      </div>
+    </section>
+
+    <section class="pane" id="p-prices">
+      <p class="help" style="margin-bottom:22px">直接修改表格，改完按「儲存價格」。網站上會顯示成「NT$xx,xxx 起」；價格留空會顯示「請洽詢」。</p>
+      <div id="price-editor"></div>
+      <div class="row-acts" style="position:sticky;bottom:16px"><button class="btn btn-ink" type="button" id="save-prices">儲存價格</button></div>
+    </section>
+
+    <section class="pane" id="p-cases">
+      <div class="two">
+        <div class="card" style="margin:0">
+          <h2 id="cf-title">新增施工案例</h2>
+          <form class="form" id="case-form" style="margin-top:14px">
+            <input type="hidden" id="cf-id">
+            <div class="field"><label for="cf-t">標題</label><input id="cf-t" placeholder="例如：白色 RAV4 全車神衣鍍膜"></div>
+            <div class="row2">
+              <div class="field"><label for="cf-car">車款</label><input id="cf-car" placeholder="例如：Toyota RAV4"></div>
+              <div class="field"><label for="cf-color">車色</label><input id="cf-color" placeholder="例如：珍珠白"></div>
+            </div>
+            <div class="row2">
+              <div class="field"><label for="cf-d">施工日期</label><input id="cf-d" type="date"></div>
+              <div class="field"><label for="cf-items">施工項目</label><input id="cf-items" placeholder="用逗號分開"></div>
+            </div>
+            <div class="field"><label for="cf-b">施工說明</label><textarea id="cf-b" rows="7" placeholder="車況怎麼樣、怎麼處理的。空一行就會分段"></textarea></div>
+            <p class="err" id="cf-err"></p>
+            <div class="row-acts" style="margin-top:0">
+              <button class="btn btn-ink" type="submit" id="cf-submit">發布案例</button>
+              <button class="btn btn-ghost" type="button" id="cf-cancel" style="display:none">取消編輯</button>
+            </div>
+          </form>
+        </div>
+        <div>
+          <h2>已發布的案例</h2>
+          <div class="scroll"><table class="adm-table" id="case-table"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" id="p-hours">
+      <div class="card" style="margin-bottom:28px">
+        <h2>網站最上方的公告</h2>
+        <p class="help">每一頁最上方都會顯示這句話。留空就不顯示。</p>
+        <form class="row2" id="notice-form" style="margin-top:12px;grid-template-columns:1fr auto;align-items:end">
+          <div class="field"><label for="notice">公告內容</label><input id="notice" maxlength="60" placeholder="例如：10/10 國慶連假照常營業"></div>
+          <button class="btn btn-ink" type="submit">儲存公告</button>
+        </form>
+      </div>
+      <div class="two">
+        <div>
+          <h2>每週營業時間</h2>
+          <div class="scroll"><table class="adm-table" id="hours-table"></table></div>
+          <div class="row-acts"><button class="btn btn-ink" type="button" id="save-hours">儲存營業時間</button></div>
+        </div>
+        <div>
+          <h2>臨時店休</h2>
+          <p class="help">設定後，預約單就不能選那一天。</p>
+          <form class="row2" id="closure-form" style="margin-top:12px;align-items:end">
+            <div class="field"><label for="cl-d">日期</label><input id="cl-d" type="date" required></div>
+            <div class="field"><label for="cl-r">原因（選填）</label><input id="cl-r" placeholder="例如：參加展覽"></div>
+            <button class="btn btn-ink" type="submit" style="grid-column:1/-1;justify-self:start">新增店休日</button>
+          </form>
+          <div class="scroll" style="margin-top:18px"><table class="adm-table" id="closure-table"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" id="p-bookings">
+      <p class="help" style="margin-bottom:12px">客人在網站送出的預約會出現在這裡。打電話約好時間後，把狀態改成「已約好」。</p>
+      <div class="scroll"><table class="adm-table" id="book-table"></table></div>
+    </section>
+  </main>
+</div>
+
+<div class="saved" id="saved" role="status"></div>
+
+<script src="../assets/data.js"></script>
+<script src="../assets/guard.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var data = HM.Store.load();
+  var TITLES = { overview: "總覽", prices: "價目管理", cases: "施工案例", hours: "公告與營業時間", bookings: "預約單" };
+
+  function flash(msg) {
+    var s = $("#saved"); s.textContent = msg; s.classList.add("show");
+    clearTimeout(flash.t); flash.t = setTimeout(function () { s.classList.remove("show"); }, 2200);
+  }
+  function commit(msg) { HM.Store.save(data); renderAll(); if (msg) flash(msg); }
+  function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0]; }
+
+  // 兩段式刪除：第一次按變成「確定刪除？」，3 秒內再按一次才刪
+  function armed(btn, label) {
+    if (btn.dataset.armed) return true;
+    btn.dataset.armed = "1"; var old = btn.textContent; btn.textContent = label || "確定刪除？";
+    setTimeout(function () { delete btn.dataset.armed; btn.textContent = old; }, 3000);
+    return false;
+  }
+
+  // ---------- 登入 ----------
+  function authed() { try { return sessionStorage.getItem("hm-admin") === "1"; } catch (e) { return false; } }
+  function showApp() { $("#login").style.display = "none"; $("#app").classList.add("on"); route(); }
+  $("#login-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if ($("#u").value.trim() === "demo" && $("#pw").value === "1234") {
+      try { sessionStorage.setItem("hm-admin", "1"); } catch (err) {}
+      showApp();
+    } else {
+      $("#login-err").textContent = "帳號或密碼不對。示範帳號是 demo，密碼是 1234。";
+    }
+  });
+  $("#logout").addEventListener("click", function (e) {
+    e.preventDefault();
+    try { sessionStorage.removeItem("hm-admin"); } catch (err) {}
+    location.hash = ""; location.reload();
+  });
+
+  function route() {
+    var p = (location.hash || "#overview").slice(1);
+    if (!TITLES[p]) p = "overview";
+    document.querySelectorAll(".pane").forEach(function (el) { el.classList.toggle("on", el.id === "p-" + p); });
+    document.querySelectorAll(".side a[data-p]").forEach(function (a) { a.classList.toggle("on", a.getAttribute("data-p") === p); });
+    $("#title").textContent = TITLES[p];
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", route);
+
+  // ---------- 總覽 ----------
+  function renderOverview() {
+    $("#ov-status").textContent = HM.statusFor(data).text;
+    var pending = data.bookings.filter(function (b) { return b.status === "待聯絡"; }).length;
+    $("#ov-book").textContent = pending;
+    $("#ov-cases").textContent = data.cases.length;
+    $("#badge").textContent = pending || "";
+    $("#badge").style.display = pending ? "" : "none";
+  }
+
+  // ---------- 價目 ----------
+  function renderPrices() {
+    $("#price-editor").innerHTML = HM.CATS.map(function (c) {
+      var rows = data.prices.filter(function (p) { return p.cat === c.id; });
+      return '<div class="cat-block"><h2>' + c.name + '</h2><div class="scroll"><table class="adm-table"><thead><tr><th>部位</th><th style="min-width:170px">項目名稱</th><th style="min-width:220px">說明</th>' +
+        c.cols.map(function (col) { return "<th>" + col + "</th>"; }).join("") + "<th></th></tr></thead><tbody>" +
+        rows.map(function (r) {
+          return '<tr data-id="' + r.id + '"><td><input class="part" data-f="part" value="' + HM.esc(r.part) + '"></td><td><input data-f="name" value="' + HM.esc(r.name) + '"></td><td><input data-f="desc" value="' + HM.esc(r.desc) + '"></td>' +
+            c.cols.map(function (_, i) { return '<td><input class="num" data-f="p' + i + '" inputmode="numeric" value="' + (r.prices[i] == null ? "" : r.prices[i]) + '"></td>'; }).join("") +
+            '<td><button class="link-btn" type="button" data-del="' + r.id + '">刪除</button></td></tr>';
+        }).join("") +
+        '</tbody></table></div><div class="row-acts"><button class="btn btn-ghost btn-small" type="button" data-add="' + c.id + '">新增一個項目</button></div></div>';
+    }).join("");
+  }
+  function collectPrices() {
+    document.querySelectorAll("#price-editor tr[data-id]").forEach(function (tr) {
+      var r = byId(data.prices, tr.dataset.id); if (!r) return;
+      ["part", "name", "desc"].forEach(function (k) { r[k] = tr.querySelector('[data-f="' + k + '"]').value.trim(); });
+      r.prices = r.prices.map(function (_, i) {
+        var v = tr.querySelector('[data-f="p' + i + '"]').value.replace(/[^\d]/g, "");
+        return v === "" ? null : Number(v);
+      });
+    });
+  }
+  $("#price-editor").addEventListener("click", function (e) {
+    var add = e.target.getAttribute("data-add"), del = e.target.getAttribute("data-del");
+    if (add) {
+      collectPrices();
+      var cat = HM.CATS.filter(function (c) { return c.id === add; })[0];
+      data.prices.push({ id: "p" + Date.now(), cat: add, part: "", name: "新項目", desc: "", prices: cat.cols.map(function () { return null; }) });
+      renderPrices();
+    }
+    if (del && armed(e.target)) { collectPrices(); data.prices = data.prices.filter(function (p) { return p.id !== del; }); commit("項目已刪除"); }
+  });
+  $("#save-prices").addEventListener("click", function () { collectPrices(); commit("價格已儲存，網站已更新"); });
+
+  // ---------- 施工案例 ----------
+  function resetCaseForm() {
+    $("#case-form").reset(); $("#cf-id").value = ""; $("#cf-d").value = HM.taipeiNow().date;
+    $("#cf-title").textContent = "新增施工案例"; $("#cf-submit").textContent = "發布案例"; $("#cf-cancel").style.display = "none"; $("#cf-err").textContent = "";
+  }
+  function renderCases() {
+    var list = HM.sortedCases(data);
+    $("#case-table").innerHTML = "<thead><tr><th>日期</th><th>標題</th><th></th></tr></thead><tbody>" +
+      (list.length ? list.map(function (c) {
+        return "<tr><td style='white-space:nowrap'>" + c.date.replace(/-/g, "/") + "</td><td>" + HM.esc(c.title) + '<div class="bk-detail">' + HM.esc(c.car) + "</div></td>" +
+          '<td style="white-space:nowrap"><a class="link-btn edit" href="../case.html?id=' + c.id + '" target="_blank" rel="noopener">查看</a> <button class="link-btn edit" type="button" data-edit="' + c.id + '">編輯</button><button class="link-btn" type="button" data-del="' + c.id + '">刪除</button></td></tr>';
+      }).join("") : '<tr><td colspan="3" class="muted">還沒有案例。用左邊的表單發布第一個。</td></tr>') + "</tbody>";
+  }
+  $("#case-table").addEventListener("click", function (e) {
+    var ed = e.target.getAttribute("data-edit"), del = e.target.getAttribute("data-del");
+    if (ed) {
+      var c = byId(data.cases, ed);
+      $("#cf-id").value = c.id; $("#cf-t").value = c.title; $("#cf-car").value = c.car; $("#cf-color").value = c.color;
+      $("#cf-d").value = c.date; $("#cf-items").value = c.items.join("，"); $("#cf-b").value = c.body;
+      $("#cf-title").textContent = "編輯施工案例"; $("#cf-submit").textContent = "儲存修改"; $("#cf-cancel").style.display = "";
+      $("#cf-t").focus();
+    }
+    if (del && armed(e.target)) { data.cases = data.cases.filter(function (x) { return x.id !== del; }); resetCaseForm(); commit("案例已刪除"); }
+  });
+  $("#cf-cancel").addEventListener("click", resetCaseForm);
+  $("#case-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var item = {
+      title: $("#cf-t").value.trim(), car: $("#cf-car").value.trim(), color: $("#cf-color").value.trim(), date: $("#cf-d").value,
+      items: $("#cf-items").value.split(/[,，、]/).map(function (s) { return s.trim(); }).filter(Boolean), body: $("#cf-b").value.trim()
+    };
+    if (!item.title || !item.date || !item.body) { $("#cf-err").textContent = "標題、施工日期、施工說明都要填。"; return; }
+    var id = $("#cf-id").value;
+    if (id) { Object.assign(byId(data.cases, id), item); resetCaseForm(); commit("案例已更新"); }
+    else { item.id = "c" + Date.now(); data.cases.push(item); resetCaseForm(); commit("案例已發布"); }
+  });
+
+  // ---------- 公告與營業時間 ----------
+  function renderHours() {
+    $("#notice").value = data.notice || "";
+    $("#hours-table").innerHTML = "<thead><tr><th>星期</th><th>營業</th><th>開門</th><th>打烊</th></tr></thead><tbody>" +
+      [1, 2, 3, 4, 5, 6, 0].map(function (d) {
+        var h = data.hours[d];
+        return '<tr data-d="' + d + '"><td>' + HM.WEEK[d] + '</td><td><label class="check"><input type="checkbox" data-f="on"' + (h ? " checked" : "") + '><span>' + (h ? "營業" : "店休") + "</span></label></td>" +
+          '<td><input type="time" data-f="s" value="' + (h ? h[0] : "09:00") + '"' + (h ? "" : " disabled") + '></td><td><input type="time" data-f="e" value="' + (h ? h[1] : "20:00") + '"' + (h ? "" : " disabled") + "></td></tr>";
+      }).join("") + "</tbody>";
+    var cl = data.closures.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    $("#closure-table").innerHTML = "<thead><tr><th>日期</th><th>原因</th><th></th></tr></thead><tbody>" +
+      (cl.length ? cl.map(function (c) {
+        return "<tr><td>" + c.date.replace(/-/g, "/") + "</td><td>" + HM.esc(c.reason || "—") + '</td><td><button class="link-btn" type="button" data-del="' + c.date + '">刪除</button></td></tr>';
+      }).join("") : '<tr><td colspan="3" class="muted">目前沒有排定臨時店休。</td></tr>') + "</tbody>";
+  }
+  $("#notice-form").addEventListener("submit", function (e) {
+    e.preventDefault(); data.notice = $("#notice").value.trim();
+    commit(data.notice ? "公告已更新" : "公告已關閉");
+  });
+  $("#hours-table").addEventListener("change", function (e) {
+    if (e.target.getAttribute("data-f") !== "on") return;
+    var tr = e.target.closest("tr");
+    tr.querySelectorAll('input[type="time"]').forEach(function (i) { i.disabled = !e.target.checked; });
+    tr.querySelector(".check span").textContent = e.target.checked ? "營業" : "店休";
+  });
+  $("#save-hours").addEventListener("click", function () {
+    var next = {}, bad = false;
+    document.querySelectorAll("#hours-table tr[data-d]").forEach(function (tr) {
+      var on = tr.querySelector('[data-f="on"]').checked, s = tr.querySelector('[data-f="s"]').value, en = tr.querySelector('[data-f="e"]').value;
+      if (on && s >= en) bad = true;
+      next[tr.dataset.d] = on ? [s, en] : null;
+    });
+    if (bad) { flash("打烊時間要比開門時間晚，請再檢查一次"); return; }
+    data.hours = next; commit("營業時間已儲存");
+  });
+  $("#cl-d").min = HM.taipeiNow().date;
+  $("#closure-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var d = $("#cl-d").value; if (!d) return;
+    data.closures = data.closures.filter(function (c) { return c.date !== d; });
+    data.closures.push({ date: d, reason: $("#cl-r").value.trim() });
+    e.target.reset(); commit("已新增店休日 " + d.replace(/-/g, "/"));
+  });
+  $("#closure-table").addEventListener("click", function (e) {
+    var d = e.target.getAttribute("data-del");
+    if (d && armed(e.target)) { data.closures = data.closures.filter(function (c) { return c.date !== d; }); commit("店休日已刪除"); }
+  });
+
+  // ---------- 預約單 ----------
+  var STATUS = ["待聯絡", "已約好", "已完工", "已取消"];
+  function renderBookings() {
+    var list = data.bookings.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    $("#book-table").innerHTML = "<thead><tr><th>希望日期</th><th>車子</th><th>用車習慣</th><th>想做的項目</th><th>客人</th><th>狀態</th><th></th></tr></thead><tbody>" +
+      (list.length ? list.map(function (b) {
+        return "<tr><td style='white-space:nowrap'>" + b.date.replace(/-/g, "/") + '<div class="bk-detail">' + HM.esc(b.slot) + "</div></td>" +
+          "<td>" + HM.esc(b.car) + '<div class="bk-detail">' + HM.esc(b.color || "") + "</div></td>" +
+          "<td>" + HM.esc(b.park) + '<div class="bk-detail">' + HM.esc(b.freq) + "</div></td>" +
+          "<td>" + (b.items.length ? HM.esc(b.items.join("、")) : "還沒決定") + (b.memo ? '<div class="bk-detail">備註：' + HM.esc(b.memo) + "</div>" : "") + "</td>" +
+          "<td>" + HM.esc(b.name) + '<div><a href="tel:' + b.phone + '">' + b.phone + "</a></div></td>" +
+          '<td><select data-st="' + b.id + '">' + STATUS.map(function (s) { return "<option" + (s === b.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select></td>" +
+          '<td><button class="link-btn" type="button" data-del="' + b.id + '">刪除</button></td></tr>';
+      }).join("") : '<tr><td colspan="7" class="muted">還沒有預約。可以到網站的「預約諮詢」頁送一筆測試預約，再回來這裡看。</td></tr>') + "</tbody>";
+  }
+  $("#book-table").addEventListener("change", function (e) {
+    var id = e.target.getAttribute("data-st"); if (!id) return;
+    byId(data.bookings, id).status = e.target.value; commit("預約狀態改為「" + e.target.value + "」");
+  });
+  $("#book-table").addEventListener("click", function (e) {
+    var id = e.target.getAttribute("data-del");
+    if (id && armed(e.target)) { data.bookings = data.bookings.filter(function (b) { return b.id !== id; }); commit("預約已刪除"); }
+  });
+
+  $("#reset").addEventListener("click", function (e) {
+    if (!armed(e.target, "再按一次確定還原")) return;
+    data = HM.Store.reset(); resetCaseForm(); renderAll(); flash("已還原成示範資料");
+  });
+
+  window.addEventListener("storage", function (e) { if (e.key === HM.KEY) { data = HM.Store.load(); renderAll(); } });
+
+  function renderAll() { renderOverview(); renderPrices(); renderCases(); renderHours(); renderBookings(); }
+  resetCaseForm();
+  renderAll();
+  if (authed()) showApp();
+})();
+</script>
+</body>
+</html>
